@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../config/route_constants.dart';
+import '../../cubit/locale/locale_cubit.dart';
 import '../../helpers/locale_helper.dart';
 import '../../localization/l10n.dart';
-import '../../provider/locale_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -21,18 +21,20 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Consumer<LocaleProvider>(
-            builder: (_, localeProv, __) {
+          BlocBuilder<LocaleCubit, Locale>(
+            builder: (context, state) {
               return DropdownButtonHideUnderline(
                 child: DropdownButton(
-                  value: localeProv.locale,
+                  value: state,
                   icon: Container(width: 12),
                   items: LocaleHelper.allLocales.map(
                     (locale) {
                       return DropdownMenuItem(
                         value: locale,
                         onTap: () {
-                          localeProv.setLocale(locale);
+                          ReadContext(context)
+                              .read<LocaleCubit>()
+                              .setLocale(locale);
                         },
                         child: Center(
                           child: Text(

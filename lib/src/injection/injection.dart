@@ -7,10 +7,9 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../common/network_handler.dart';
 import '../config/constants.dart';
-import '../provider/auth_provider.dart';
-import '../provider/home_provider.dart';
-import '../provider/locale_provider.dart';
-import '../provider/theme_provider.dart';
+import '../cubit/auth/auth_cubit.dart';
+import '../cubit/locale/locale_cubit.dart';
+import '../cubit/theme/theme_cubit.dart';
 import '../services/local/preference.dart';
 import '../services/remote/auth_service.dart';
 import '../services/remote/home_service.dart';
@@ -59,17 +58,10 @@ Future<void> initDependencyInjection() async {
     () => HomeService(s1()),
   );
 
-  //! Providers
+  //! Cubits
+  s1.registerLazySingleton(() => ThemeCubit(s1()));
+  s1.registerLazySingleton(() => LocaleCubit(s1()));
   s1.registerLazySingleton(
-    () => AuthProvider(s1(), s1(), s1(), s1()),
-  );
-  s1.registerLazySingleton(
-    () => HomeProvider(s1(), s1()),
-  );
-  s1.registerLazySingleton(
-    () => LocaleProvider(s1()),
-  );
-  s1.registerLazySingleton(
-    () => DarkThemeProvider(s1()),
+    () => AuthCubit(s1(), s1(), s1(), s1()),
   );
 }

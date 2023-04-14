@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../config/asset_constants.dart';
-import '../../provider/auth_provider.dart';
-import '../../provider/locale_provider.dart';
-import '../../provider/theme_provider.dart';
+import '../../cubit/auth/auth_cubit.dart';
+import '../../cubit/locale/locale_cubit.dart';
+import '../../cubit/theme/theme_cubit.dart';
 import '../../utils/size_util.dart';
 
 class SplashPage extends StatefulWidget {
@@ -34,16 +34,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     });
     animation.forward();
 
-    final localeProvStatic =
-        Provider.of<LocaleProvider>(context, listen: false);
-    localeProvStatic.initLocale();
-
-    final themeProvStatic =
-        Provider.of<DarkThemeProvider>(context, listen: false);
-    themeProvStatic.initThemeProvider();
-
-    final authProvStatic = Provider.of<AuthProvider>(context, listen: false);
-    authProvStatic.init();
+    context.read<LocaleCubit>().initLocale();
+    context.read<ThemeCubit>().initThemeProvider();
+    context.read<AuthCubit>().init();
   }
 
   @override

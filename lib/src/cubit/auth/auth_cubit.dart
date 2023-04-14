@@ -1,28 +1,29 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:fluttertemplate/src/app.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../app.dart';
+import 'auth_state.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-import '../config/route_constants.dart';
-import '../models/user.dart';
-import '../services/local/preference.dart';
-import '../services/remote/auth_service.dart';
+import '../../config/route_constants.dart';
+import '../../services/local/preference.dart';
+import '../../services/remote/auth_service.dart';
 
-class AuthProvider extends ChangeNotifier {
+class AuthCubit extends Cubit<AuthState> {
   final AuthService _authService;
   final PreferenceService _preferenceService;
   final Connectivity _connectivity;
   final PackageInfo _packageInfo;
-  AuthProvider(this._authService, this._preferenceService, this._connectivity,
-      this._packageInfo);
 
-  User? customer;
-  String versionNumber = '';
+  AuthCubit(this._authService, this._preferenceService, this._connectivity,
+      this._packageInfo)
+      : super(const AuthState());
 
   Future<void> init() async {
-    versionNumber =
+    var versionNumber =
         'Version: ${_packageInfo.version}+${_packageInfo.buildNumber}';
+    emit(state.copyWith(versionNumber: versionNumber));
+
     var connectionStatus = await _connectivity.checkConnectivity();
     if (connectionStatus == ConnectivityResult.none) {
       GoRouter.of(navigator.currentContext!).go(Routes.noInternet);
@@ -36,8 +37,9 @@ class AuthProvider extends ChangeNotifier {
       return;
     }
 
-    customer = await _authService.getCustomerDetails();
-    notifyListeners();
+    var customer = await _authService.getCustomerDetails();
+    emit(state.copyWith(user: customer));
+
     customer == null
         ? GoRouter.of(navigator.currentContext!).go(Routes.login)
         : GoRouter.of(navigator.currentContext!)

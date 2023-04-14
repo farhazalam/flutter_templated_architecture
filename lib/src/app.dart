@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:provider/provider.dart';
-import 'provider/theme_provider.dart';
+import 'package:fluttertemplate/src/helpers/router_helper.dart';
+import 'package:get_it/get_it.dart';
+import 'cubit/auth/auth_cubit.dart';
+import 'cubit/locale/locale_cubit.dart';
+import 'cubit/theme/theme_cubit.dart';
 import 'theme/theme.dart';
-import 'helpers/router_helper.dart';
 import 'views/widgets/error_builder.dart';
 import 'views/widgets/size_builder.dart';
 
 import 'config/enviroment_constant.dart';
 import 'helpers/locale_helper.dart';
-import 'helpers/provider_helper.dart';
-import 'provider/locale_provider.dart';
 
 final GlobalKey<NavigatorState> navigator = GlobalKey<NavigatorState>();
 
@@ -20,14 +21,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizeBuilder(builder: (context, orientation, deviceType) {
-      return MultiProvider(
-        providers: ProviderHelper.getProvidersList(),
-        child: Selector<LocaleProvider, Locale>(
-          selector: (_, localeProv) => localeProv.locale,
-          builder: (_, locale, __) {
-            return Selector<DarkThemeProvider, bool>(
-              selector: (_, themeProv) => themeProv.isDarkTheme,
-              builder: (context, isDarkTheme, child) {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create: (context) => GetIt.I<ThemeCubit>(),
+          ),
+          BlocProvider(
+            create: (context) => GetIt.I<LocaleCubit>(),
+          ),
+          BlocProvider(
+            create: (context) => GetIt.I<AuthCubit>(),
+          ),
+        ],
+        child: BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return BlocBuilder<ThemeCubit, bool>(
+              builder: (context, isDarkTheme) {
                 return MaterialApp.router(
                   debugShowCheckedModeBanner:
                       (dotenv.env[EnviromentConstant.enviroment] ?? '') ==

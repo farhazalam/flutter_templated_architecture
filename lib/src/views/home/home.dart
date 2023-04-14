@@ -1,11 +1,8 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertemplate/src/localization/l10n.dart';
-import 'package:provider/provider.dart';
-
-import '../../helpers/locale_helper.dart';
-import '../../provider/locale_provider.dart';
-import '../../provider/theme_provider.dart';
+import '../../cubit/theme/theme_cubit.dart';
 import '../../utils/alerts.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,40 +34,13 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('Crash Report')),
           const Text('Dark Mode'),
-          Consumer<DarkThemeProvider>(
-            builder: (context, prov, child) {
+          BlocBuilder<ThemeCubit, bool>(
+            builder: (context, state) {
               return Switch(
-                value: prov.isDarkTheme,
+                value: state,
                 onChanged: (value) {
-                  prov.isDarkTheme = value;
+                  context.read<ThemeCubit>().updateIsDarkTheme(value);
                 },
-              );
-            },
-          ),
-          Consumer<LocaleProvider>(
-            builder: (_, localeProv, __) {
-              return DropdownButtonHideUnderline(
-                child: DropdownButton(
-                  value: localeProv.locale,
-                  icon: Container(width: 12),
-                  items: LocaleHelper.allLocales.map(
-                    (locale) {
-                      return DropdownMenuItem(
-                        value: locale,
-                        onTap: () {
-                          localeProv.setLocale(locale);
-                        },
-                        child: Center(
-                          child: Text(
-                            locale.languageCode,
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                        ),
-                      );
-                    },
-                  ).toList(),
-                  onChanged: (_) {},
-                ),
               );
             },
           ),
